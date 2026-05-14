@@ -2,6 +2,7 @@ package com.mochi_753.tconstructmtk;
 
 import com.mochi_753.tconstructmtk.common.capabilities.TConstructMTKCapProvider;
 import com.mochi_753.tconstructmtk.common.event.TConstructMTKEventHandler;
+import com.mochi_753.tconstructmtk.common.network.SyncArmorModePacket;
 import com.mochi_753.tconstructmtk.common.registry.TConstructMTKFluids;
 import com.mochi_753.tconstructmtk.common.registry.TConstructMTKItems;
 import com.mochi_753.tconstructmtk.common.registry.TConstructMTKModifiers;
@@ -44,14 +45,28 @@ public class TConstructMTK {
         TConstructMTKFluids.register(eventBus);
         TConstructMTKModifiers.register(eventBus);
 
+        eventBus.addListener(TConstructMTKEventHandler::onRegisterCaps);
+
         new TConstructMTKTiers();
 
         ToolCapabilityProvider.register(TConstructMTKCapProvider::new);
 
+        MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onLivingDeath);
+        MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onLivingAttack);
+        MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onLivingHurt);
+        MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onPlayerDamage);
+        MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onPlayerTick);
+        MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onLivingEquipmentChange);
         MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onRightClickItem);
 
+        CHANNEL.messageBuilder(SyncArmorModePacket.class, 1)
+                .encoder(SyncArmorModePacket::encode)
+                .decoder(SyncArmorModePacket::new)
+                .consumerMainThread(SyncArmorModePacket::handle)
+                .add();
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, ()->()->{
-            MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onPlayerTick);
+            MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onClientTick);
         });
     }
 }

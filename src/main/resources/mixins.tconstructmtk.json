@@ -5,7 +5,9 @@
   "refmap": "mixins.tconstructmtk.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ClientEventMixin"
+    "ClientEventMixin",
+    "LivingEntityMixin",
+    "ManaitaHelmetAccessor"
   ],
   "client": [
     "MTKSwitcherScreenMixin"

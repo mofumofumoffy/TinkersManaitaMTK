@@ -1,6 +1,9 @@
 package com.mochi_753.tconstructmtk.common.modiffier;
 
+import com.mochi_753.tconstructmtk.common.capabilities.ArmorMTKCapability;
 import com.mochi_753.tconstructmtk.common.capabilities.ToolMTKCapability;
+import com.mochi_753.tconstructmtk.common.capabilities.props.ArmorMode;
+import com.mochi_753.tconstructmtk.common.capabilities.props.FlySpeedMode;
 import com.mochi_753.tconstructmtk.common.registry.TConstructMTKItems;
 import com.takoy3466.manaitamtk.KeyMapping.MTKKeyMappings;
 import com.takoy3466.manaitamtk.capability.MTKCapabilities;
@@ -15,6 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -48,6 +53,8 @@ import java.util.function.Predicate;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierHook, BreakSpeedModifierHook, MeleeHitModifierHook, BlockInteractionModifierHook, BowAmmoModifierHook, TooltipModifierHook {
+    private final Component hoverText = Component.translatable("item.manaitamtk.helmet_manaita.hover_text");
+
     private final Component SWORD_TEXT_ENEMY = Component.translatable("gui.overlay.sword.enemy_die").withStyle(ChatFormatting.WHITE);
     private final Component SWORD_TEXT_ALL = Component.translatable("gui.overlay.sword.all_die").withStyle(ChatFormatting.RED);
     private final Component MODE = Component.translatable("item.manaitamtk.manaita_sword.hover_text_mode");
@@ -130,19 +137,24 @@ public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierH
 
     @Override
     public void addTooltip(IToolStackView iToolStackView, ModifierEntry modifierEntry, @Nullable Player player, List<Component> list, TooltipKey tooltipKey, TooltipFlag tooltipFlag) {
-        list.add(Component.translatable("item.manaitamtk.manaita_sword_hover_text")
-                .withStyle(ChatFormatting.GRAY));
-        list.add(Component.literal(this.KEY.getString() + MTKKeyMappings.SwitchExterminationKey.getKey().getDisplayName().getString()));
-
-
         if(iToolStackView.hasTag(TinkerTags.Items.MELEE_WEAPON)){
+            list.add(Component.translatable("item.manaitamtk.manaita_sword_hover_text")
+                    .withStyle(ChatFormatting.GRAY));
+            list.add(Component.literal(this.KEY.getString() + MTKKeyMappings.SwitchExterminationKey.getKey().getDisplayName().getString()));
+
             if (iToolStackView.getPersistentData().getBoolean(ToolMTKCapability.IS_KILL_ALL)) {
                 list.add(Component.literal(this.MODE.getString() + this.SWORD_TEXT_ALL.getString()));
             } else list.add(Component.literal(this.MODE.getString() + this.SWORD_TEXT_ENEMY.getString()));
         }
 
-        int range = iToolStackView.getPersistentData().getInt(ToolMTKCapability.RANGE_BREAK);
-        list.add(Component.literal("MODE : " + range + " x " + range)
-                .withStyle(ChatFormatting.GRAY));
+
+
+        if(iToolStackView.hasTag(TinkerTags.Items.WORN_ARMOR)){
+            list.add(Component.literal(hoverText.getString() + FlySpeedMode.byIndex(iToolStackView.getPersistentData().getInt(ArmorMTKCapability.FLY_SPEED)).getContext()).withStyle(ChatFormatting.GRAY));
+        } else {
+            int range = iToolStackView.getPersistentData().getInt(ToolMTKCapability.RANGE_BREAK);
+            list.add(Component.literal("MODE : " + range + " x " + range)
+                    .withStyle(ChatFormatting.GRAY));
+        }
     }
 }

@@ -4,23 +4,24 @@ import com.mochi_753.tconstructmtk.common.capabilities.ToolMTKCapability;
 import com.mochi_753.tconstructmtk.common.registry.TConstructMTKItems;
 import com.takoy3466.manaitamtk.KeyMapping.MTKKeyMappings;
 import com.takoy3466.manaitamtk.capability.MTKCapabilities;
-import com.takoy3466.manaitamtk.entity.EntityArrowMTK;
-import com.takoy3466.manaitamtk.network.MTKNetwork;
-import com.takoy3466.manaitamtk.network.PacketisKillAll;
+import com.takoy3466.manaitamtk.capability.helper.MTKCapabilityHelper;
+import com.takoy3466.manaitamtk.config.MTKConfig;
 import com.takoy3466.manaitamtk.util.WeaponUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.Nullable;
@@ -30,26 +31,23 @@ import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.ModifierHooks;
 import slimeknights.tconstruct.library.modifiers.hook.combat.MeleeHitModifierHook;
 import slimeknights.tconstruct.library.modifiers.hook.display.TooltipModifierHook;
-import slimeknights.tconstruct.library.modifiers.hook.interaction.InventoryTickModifierHook;
-import slimeknights.tconstruct.library.modifiers.hook.interaction.UsingToolModifierHook;
+import slimeknights.tconstruct.library.modifiers.hook.interaction.BlockInteractionModifierHook;
+import slimeknights.tconstruct.library.modifiers.hook.interaction.InteractionSource;
+import slimeknights.tconstruct.library.modifiers.hook.mining.BlockBreakModifierHook;
 import slimeknights.tconstruct.library.modifiers.hook.mining.BreakSpeedModifierHook;
 import slimeknights.tconstruct.library.modifiers.hook.ranged.BowAmmoModifierHook;
-import slimeknights.tconstruct.library.modifiers.hook.ranged.ProjectileHitModifierHook;
 import slimeknights.tconstruct.library.modifiers.impl.NoLevelsModifier;
 import slimeknights.tconstruct.library.module.ModuleHookMap;
 import slimeknights.tconstruct.library.tools.context.ToolAttackContext;
+import slimeknights.tconstruct.library.tools.context.ToolHarvestContext;
 import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
-import slimeknights.tconstruct.library.tools.nbt.ModDataNBT;
-import slimeknights.tconstruct.library.tools.nbt.ModifierNBT;
-import slimeknights.tconstruct.library.tools.nbt.ToolStack;
-
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Predicate;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class ModifierMTK extends NoLevelsModifier implements BreakSpeedModifierHook, MeleeHitModifierHook, BowAmmoModifierHook, TooltipModifierHook {
+public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierHook, BreakSpeedModifierHook, MeleeHitModifierHook, BlockInteractionModifierHook, BowAmmoModifierHook, TooltipModifierHook {
     private final Component SWORD_TEXT_ENEMY = Component.translatable("gui.overlay.sword.enemy_die").withStyle(ChatFormatting.WHITE);
     private final Component SWORD_TEXT_ALL = Component.translatable("gui.overlay.sword.all_die").withStyle(ChatFormatting.RED);
     private final Component MODE = Component.translatable("item.manaitamtk.manaita_sword.hover_text_mode");
@@ -57,7 +55,7 @@ public class ModifierMTK extends NoLevelsModifier implements BreakSpeedModifierH
 
     @Override
     protected void registerHooks(ModuleHookMap.Builder hookBuilder) {
-        hookBuilder.addHook(this, ModifierHooks.BREAK_SPEED, ModifierHooks.MELEE_HIT, ModifierHooks.BOW_AMMO, ModifierHooks.TOOLTIP);
+        hookBuilder.addHook(this, ModifierHooks.BLOCK_BREAK, ModifierHooks.BREAK_SPEED, ModifierHooks.MELEE_HIT, ModifierHooks.BLOCK_INTERACT, ModifierHooks.BOW_AMMO, ModifierHooks.TOOLTIP);
     }
 
     @Override
@@ -102,6 +100,34 @@ public class ModifierMTK extends NoLevelsModifier implements BreakSpeedModifierH
         return new ItemStack(TConstructMTKItems.TINKER_ARROW_MTK.get());
     }
 
+
+
+    @Override
+    public void afterBlockBreak(IToolStackView iToolStackView, ModifierEntry modifierEntry, ToolHarvestContext toolHarvestContext) {
+        Player player = toolHarvestContext.getPlayer();
+        if(player != null){
+            MTKCapabilityHelper.execute(MTKCapabilities.RANGE_BREAK, toolHarvestContext.getPlayer(), InteractionHand.MAIN_HAND, iRangeBreak -> {
+                BlockPos pos = toolHarvestContext.getPos();
+                iRangeBreak.rangeBreak(toolHarvestContext.getWorld(), pos.getX(), pos.getY(), pos.getZ(), player, iRangeBreak.getRange());
+            });
+        }
+    }
+
+    @Override
+    public InteractionResult afterBlockUse(IToolStackView tool, ModifierEntry modifier, UseOnContext context, InteractionSource source) {
+        Level level = context.getLevel();
+        Player player = context.getPlayer();
+        int radius = MTKConfig.CROP_GROWTH_RADIUS.get();
+        if (player != null){
+            if (!level.isClientSide() && player.isSteppingCarefully()) {
+                MTKCapabilityHelper.execute(MTKCapabilities.SPREAD_GROW, context, iSpreadGrow -> iSpreadGrow.spreadGrow(context, radius));
+                MTKCapabilityHelper.execute(MTKCapabilities.WOOD_REVERSE, context, iWoodReverse -> iWoodReverse.woodReverse(context));
+                return InteractionResult.sidedSuccess(level.isClientSide);
+            }
+        }
+        return BlockInteractionModifierHook.super.afterBlockUse(tool, modifier, context, source);
+    }
+
     @Override
     public void addTooltip(IToolStackView iToolStackView, ModifierEntry modifierEntry, @Nullable Player player, List<Component> list, TooltipKey tooltipKey, TooltipFlag tooltipFlag) {
         list.add(Component.translatable("item.manaitamtk.manaita_sword_hover_text")
@@ -114,5 +140,9 @@ public class ModifierMTK extends NoLevelsModifier implements BreakSpeedModifierH
                 list.add(Component.literal(this.MODE.getString() + this.SWORD_TEXT_ALL.getString()));
             } else list.add(Component.literal(this.MODE.getString() + this.SWORD_TEXT_ENEMY.getString()));
         }
+
+        int range = iToolStackView.getPersistentData().getInt(ToolMTKCapability.RANGE_BREAK);
+        list.add(Component.literal("MODE : " + range + " x " + range)
+                .withStyle(ChatFormatting.GRAY));
     }
 }

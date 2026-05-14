@@ -5,10 +5,10 @@
   "refmap": "mixins.tconstructmtk.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "RenderGUIOverlayEventMixin"
+    "ClientEventMixin"
   ],
   "client": [
-
+    "MTKSwitcherScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

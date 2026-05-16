@@ -14,7 +14,7 @@ import java.util.Optional;
 import static com.mochi_753.tconstructmtk.common.event.TConstructMTKEventHandler.ARMOR_SLOTS;
 
 public enum FlySpeedMode{
-    NOTHING(-1, 0f, "0"),
+    NOTHING(-1, 0.05f, "0.05"),
     SLOW(0, 0.05f, "0.05"),
     NORMAL(1, 0.1f, "0.1"),
     FAST(2, 0.2f, "0.2"),

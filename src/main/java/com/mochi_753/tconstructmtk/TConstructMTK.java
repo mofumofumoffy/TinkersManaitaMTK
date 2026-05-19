@@ -47,6 +47,7 @@ public class TConstructMTK {
 
         eventBus.addListener(TConstructMTKEventHandler::onRegisterCaps);
 
+        //noinspection InstantiationOfUtilityClass
         new TConstructMTKTiers();
 
         ToolCapabilityProvider.register(TConstructMTKCapProvider::new);

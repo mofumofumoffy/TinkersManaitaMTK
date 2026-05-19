@@ -27,7 +27,7 @@ public class TConstructMTKCapProvider implements ToolCapabilityProvider.IToolCap
     }
 
     @Override
-    public <T> @NotNull LazyOptional<T> getCapability(IToolStackView iToolStackView, Capability<T> capability) {
+    public <T> @NotNull LazyOptional<T> getCapability(IToolStackView iToolStackView, @NotNull Capability<T> capability) {
         if (iToolStackView.getModifierLevel(TConstructMTKModifiers.MTK_MODIFIER.get()) > 0) {
             if (iToolStackView.hasTag(TinkerTags.Items.WORN_ARMOR)) {
                 if (capability == MTKCapabilities.INVINCIBLE || capability == MTKCapabilities.FLY || capability == ArmorMTKCapability.ARMOR_MODE_CAPABILITY) {

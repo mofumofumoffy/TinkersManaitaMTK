@@ -24,7 +24,7 @@ public class LivingEntityMixin {
 
     @Inject(at = @At("HEAD"), method = "setHealth", cancellable = true)
     private void onSetHealth(float v, CallbackInfo ci) {
-        LivingEntity entity = (LivingEntity)(Object)this;
+        LivingEntity entity = (LivingEntity) (Object) this;
         if (tinkersManaitaMTK$whetherInvincible(entity)) {
             ci.cancel();
         }
@@ -32,7 +32,7 @@ public class LivingEntityMixin {
 
     @Inject(at = @At("HEAD"), method = "getHealth", cancellable = true)
     private void onGetHealth(CallbackInfoReturnable<Float> cir) {
-        LivingEntity entity = (LivingEntity)(Object)this;
+        LivingEntity entity = (LivingEntity) (Object) this;
         if (tinkersManaitaMTK$whetherInvincible(entity)) {
             cir.setReturnValue(entity.getMaxHealth());
         }
@@ -40,7 +40,7 @@ public class LivingEntityMixin {
 
     @Inject(method = "isDeadOrDying", at = @At("RETURN"), cancellable = true)
     private void onIsDeadOrDying(CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity entity = (LivingEntity)(Object)this;
+        LivingEntity entity = (LivingEntity) (Object) this;
         if (tinkersManaitaMTK$whetherInvincible(entity)) {
             cir.setReturnValue(false);
         }
@@ -48,7 +48,7 @@ public class LivingEntityMixin {
 
     @Inject(method = "isAlive", at = @At("RETURN"), cancellable = true)
     private void onIsAlive(CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity entity = (LivingEntity)(Object)this;
+        LivingEntity entity = (LivingEntity) (Object) this;
         if (tinkersManaitaMTK$whetherInvincible(entity)) {
             cir.setReturnValue(true);
         }

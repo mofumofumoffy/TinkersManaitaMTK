@@ -25,7 +25,7 @@ public class MTKSwitcherScreenMixin {
             at = @At("HEAD"),
             method = "setDefault"
     )
-    private void setDefaultExtension(CallbackInfo ci){
+    private void setDefaultExtension(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
             ItemStack stack = minecraft.player.getMainHandItem();
@@ -39,7 +39,7 @@ public class MTKSwitcherScreenMixin {
             at = @At("HEAD"),
             method = "setRange"
     )
-    private void setRangeExtension(MTKSwitcherScreen.MTKIcon mtkIcon, CallbackInfo ci){
+    private void setRangeExtension(MTKSwitcherScreen.MTKIcon mtkIcon, CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
             ItemStack stack = minecraft.player.getMainHandItem();

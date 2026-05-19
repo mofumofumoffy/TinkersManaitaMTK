@@ -1,7 +1,10 @@
 package com.mochi_753.tconstructmtk.common.capabilities;
 
 import com.mochi_753.tconstructmtk.TConstructMTK;
-import com.takoy3466.manaitamtk.capability.interfaces.*;
+import com.takoy3466.manaitamtk.capability.interfaces.IKillSword;
+import com.takoy3466.manaitamtk.capability.interfaces.IRangeBreak;
+import com.takoy3466.manaitamtk.capability.interfaces.ISpreadGrow;
+import com.takoy3466.manaitamtk.capability.interfaces.IWoodReverse;
 import com.takoy3466.manaitamtk.core.MTKBlockList;
 import com.takoy3466.manaitamtk.util.ToolUtil;
 import com.takoy3466.manaitamtk.util.WeaponUtil;
@@ -21,7 +24,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import slimeknights.tconstruct.common.TinkerTags;
 import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
-import slimeknights.tconstruct.tools.TinkerModifiers;
 import slimeknights.tconstruct.tools.data.ModifierIds;
 
 import java.util.HashMap;
@@ -46,21 +48,21 @@ public class ToolMTKCapability implements IKillSword, IRangeBreak, IWoodReverse,
     protected final ItemStack stack;
     protected final IToolStackView toolStack;
 
-    public ToolMTKCapability(ItemStack stack, IToolStackView toolStack){
+    public ToolMTKCapability(ItemStack stack, IToolStackView toolStack) {
         this.stack = stack;
         this.toolStack = toolStack;
     }
 
     @Override
     public void setIsKillAll(boolean isKillAll) {
-        if(stack.is(TinkerTags.Items.MELEE_WEAPON)) {
+        if (stack.is(TinkerTags.Items.MELEE_WEAPON)) {
             toolStack.getPersistentData().putBoolean(IS_KILL_ALL, isKillAll);
         }
     }
 
     @Override
     public boolean isKillAll() {
-        if(stack.is(TinkerTags.Items.MELEE_WEAPON)) {
+        if (stack.is(TinkerTags.Items.MELEE_WEAPON)) {
             return toolStack.getPersistentData().getBoolean(IS_KILL_ALL);
         }
         return false;
@@ -68,7 +70,7 @@ public class ToolMTKCapability implements IKillSword, IRangeBreak, IWoodReverse,
 
     @Override
     public void kill(LivingEntity target, Level level, Player player) {
-        if(stack.is(TinkerTags.Items.MELEE_WEAPON)){
+        if (stack.is(TinkerTags.Items.MELEE_WEAPON)) {
             WeaponUtil.lightningStriker(target, level, player);
         }
     }
@@ -81,18 +83,18 @@ public class ToolMTKCapability implements IKillSword, IRangeBreak, IWoodReverse,
     }
 
     @Override
-    public void setRange(int range) {
-        toolStack.getPersistentData().putInt(RANGE_BREAK, Math.max(range, 1));
-    }
-
-    @Override
     public int getRange() {
         return toolStack.getPersistentData().getInt(RANGE_BREAK);
     }
 
     @Override
+    public void setRange(int range) {
+        toolStack.getPersistentData().putInt(RANGE_BREAK, Math.max(range, 1));
+    }
+
+    @Override
     public void spreadGrow(Level level, BlockPos blockPos, int radius) {
-        if(toolStack.getModifierLevel(ModifierIds.tilling) > 0){
+        if (toolStack.getModifierLevel(ModifierIds.tilling) > 0) {
             ToolUtil.spreadGrow(level, blockPos, radius);
             level.playSound(null, blockPos, SoundEvents.BONE_MEAL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
@@ -100,7 +102,7 @@ public class ToolMTKCapability implements IKillSword, IRangeBreak, IWoodReverse,
 
     @Override
     public void woodReverse(Level level, BlockPos pos, Player player, ItemStack stack, InteractionHand hand) {
-        if(toolStack.getModifierLevel(ModifierIds.stripping) > 0){
+        if (toolStack.getModifierLevel(ModifierIds.stripping) > 0) {
             BlockState state = level.getBlockState(pos);
             Block block = state.getBlock();
 

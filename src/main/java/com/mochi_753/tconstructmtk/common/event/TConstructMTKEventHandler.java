@@ -24,7 +24,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,7 +34,9 @@ import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import slimeknights.tconstruct.library.tools.item.IModifiable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.mochi_753.tconstructmtk.common.capabilities.props.FlySpeedMode.FIRST_TEXT;
@@ -82,7 +83,7 @@ public class TConstructMTKEventHandler {
                 Predicate<LivingEntity> onlyEnemy = entity -> (entity != player) && (entity instanceof Enemy);
 
                 List<LivingEntity> targets = iKillSword.isKillAll() ?
-                        WeaponUtil.selectTargets(entityClass, level, player, radius/10, allEntity)
+                        WeaponUtil.selectTargets(entityClass, level, player, radius / 10, allEntity)
                         : WeaponUtil.selectTargets(entityClass, level, player, radius, onlyEnemy);
 
                 iKillSword.kill(targets, level, player);
@@ -94,14 +95,14 @@ public class TConstructMTKEventHandler {
         }
     }
 
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event){
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Player player = event.player;
-        if(!player.level().isClientSide()){
+        if (!player.level().isClientSide()) {
             ArmorMode.getCurrentArmorMode(player).ifPresent(currentArmorMode -> {
-                if(currentArmorMode == ArmorMode.ENABLED){
-                    player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 20*20, 0));
-                    player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 20*20, 0));
+                if (currentArmorMode == ArmorMode.ENABLED) {
+                    player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 20 * 20, 0));
+                    player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 20 * 20, 0));
                     player.onUpdateAbilities();
                 }
 
@@ -137,7 +138,7 @@ public class TConstructMTKEventHandler {
                         }
                     }
                 }
-            }else {
+            } else {
                 if (current.getItem() instanceof IModifiable && current.getCapability(MTKCapabilities.FLY).isPresent()) {
                     player.getAbilities().mayfly = true;
                     player.onUpdateAbilities();
@@ -147,33 +148,33 @@ public class TConstructMTKEventHandler {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void onClientTick(TickEvent.ClientTickEvent event){
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
 
         LocalPlayer player = Minecraft.getInstance().player;
-        if(player != null){
+        if (player != null) {
             //sword
             ItemStack mainHandStack = player.getMainHandItem();
             if (MTKKeyMappings.SwitchExterminationKey.consumeClick() && Objects.requireNonNull(player).isSteppingCarefully()) {
-                    mainHandStack.getCapability(MTKCapabilities.KILL_SWORD).ifPresent(iKillSword -> {
-                        iKillSword.setIsKillAll(!iKillSword.isKillAll());
-                        MTKNetwork.sendToServer(new PacketisKillAll(iKillSword.isKillAll()));
-                    });
+                mainHandStack.getCapability(MTKCapabilities.KILL_SWORD).ifPresent(iKillSword -> {
+                    iKillSword.setIsKillAll(!iKillSword.isKillAll());
+                    MTKNetwork.sendToServer(new PacketisKillAll(iKillSword.isKillAll()));
+                });
             }
 
             //armor
-            if (MTKKeyMappings.HelmetKey.consumeClick()){
-                if(player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof HelmetManaita helmetManaita){
+            if (MTKKeyMappings.HelmetKey.consumeClick()) {
+                if (player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof HelmetManaita helmetManaita) {
                     ManaitaHelmetAccessor manaitaHelmetAccessor = (ManaitaHelmetAccessor) helmetManaita;
                     ManaitaHelmetAccessor.setModeNumber(manaitaHelmetAccessor.invokeModeChange(ManaitaHelmetAccessor.getModeNumber(), 1));
-                    player.displayClientMessage(Component.literal("MODE :" + manaitaHelmetAccessor.invokeModeName()),true);
+                    player.displayClientMessage(Component.literal("MODE :" + manaitaHelmetAccessor.invokeModeName()), true);
                 } else {
                     ArmorMode.adjustArmorMode(player);
                 }
             }
 
             if (MTKKeyMappings.FlySpeedKey.consumeClick()) {
-                if(player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof HelmetManaita helmetManaita){
+                if (player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof HelmetManaita helmetManaita) {
                     ItemStack stack = player.getItemBySlot(EquipmentSlot.HEAD);
                     ManaitaHelmetAccessor manaitaHelmetAccessor = (ManaitaHelmetAccessor) helmetManaita;
                     manaitaHelmetAccessor.setFlySpeedNumber(manaitaHelmetAccessor.invokeModeChange(manaitaHelmetAccessor.getFlySpeedNumber(), 3));
@@ -183,13 +184,13 @@ public class TConstructMTKEventHandler {
                         case 3 -> helmetManaita.setFlySpeed(stack, 0.6f);
                         default -> helmetManaita.setFlySpeed(stack, 0.05f);
                     }
-                    String s =  switch (manaitaHelmetAccessor.getFlySpeedNumber()) {
+                    String s = switch (manaitaHelmetAccessor.getFlySpeedNumber()) {
                         case 1 -> "0.1";
                         case 2 -> "0.2";
                         case 3 -> "0.6";
                         default -> "0.05";
                     };
-                    player.displayClientMessage(Component.literal(FIRST_TEXT.getString() + s),true);
+                    player.displayClientMessage(Component.literal(FIRST_TEXT.getString() + s), true);
                 } else {
                     FlySpeedMode.adjustFlySpeedMode(player);
                 }

@@ -32,13 +32,13 @@ public class ClientEventMixin {
             at = @At("HEAD"),
             method = "onKeyInput"
     )
-    private static void onKeyInputWithMTKTool(InputEvent.Key event, CallbackInfo ci){
+    private static void onKeyInputWithMTKTool(InputEvent.Key event, CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) return;
         Item item = minecraft.player.getMainHandItem().getItem();
 
         boolean hasItem = item instanceof IModifiable && ToolStack.from(minecraft.player.getMainHandItem()).getModifierLevel(TConstructMTKModifiers.MTK_MODIFIER.get()) > 0;
-        if (hasItem){
+        if (hasItem) {
             if (MTKKeyMappings.MTKSwitcherOpenKey.matches(event.getKey(), event.getScanCode())) {
                 if (event.getAction() == GLFW.GLFW_PRESS) {
                     minecraft.setScreen(new MTKSwitcherScreen());
@@ -73,18 +73,18 @@ public class ClientEventMixin {
         ItemStack stack = player.getMainHandItem();
         Item item = stack.getItem();
 
-        if(item instanceof IModifiable && ToolStack.from(stack).getModifierLevel(TConstructMTKModifiers.MTK_MODIFIER.get()) > 0){
+        if (item instanceof IModifiable && ToolStack.from(stack).getModifierLevel(TConstructMTKModifiers.MTK_MODIFIER.get()) > 0) {
             MTKEventHelper.execute(MTKCapabilities.RANGE_BREAK, stack, (cap) -> {
                 MTKSwitcherScreen.MTKIcon mtkIcon = MTKSwitcherScreen.MTKIcon.getFromRange(cap.getRange());
-                graphics.blit(FLAME_TEXTURE , FLAME_X, FLAME_Y , 0, 0 , 24, 24 , 24, 24);
+                graphics.blit(FLAME_TEXTURE, FLAME_X, FLAME_Y, 0, 0, 24, 24, 24, 24);
                 graphics.renderItem(mtkIcon.getRenderStack(), FLAME_X + 4, FLAME_Y + 4);
             });
 
             MTKEventHelper.execute(MTKCapabilities.KILL_SWORD, stack, (cap) -> {
                 boolean killTarget = cap.isKillAll();
-                int xSword = minecraft.getWindow().getGuiScaledWidth() / 2 - minecraft.font.width(killTarget? SWORD_TEXT_ALL.getString() : SWORD_TEXT_ENEMY.getString()) / 2;
+                int xSword = minecraft.getWindow().getGuiScaledWidth() / 2 - minecraft.font.width(killTarget ? SWORD_TEXT_ALL.getString() : SWORD_TEXT_ENEMY.getString()) / 2;
                 int ySword = minecraft.getWindow().getGuiScaledHeight() - 49 - minecraft.font.lineHeight;
-                graphics.drawString(minecraft.font, killTarget? SWORD_TEXT_ALL : SWORD_TEXT_ENEMY, xSword, ySword, killTarget? Color.RED.getRGB() : Color.GRAY.getRGB());
+                graphics.drawString(minecraft.font, killTarget ? SWORD_TEXT_ALL : SWORD_TEXT_ENEMY, xSword, ySword, killTarget ? Color.RED.getRGB() : Color.GRAY.getRGB());
             });
 
             ci.cancel();

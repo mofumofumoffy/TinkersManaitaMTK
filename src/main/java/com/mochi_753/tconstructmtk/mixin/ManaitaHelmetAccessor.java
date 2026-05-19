@@ -9,14 +9,14 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface ManaitaHelmetAccessor {
 
     @Accessor("modeNumber")
-    static int getModeNumber(){
+    static int getModeNumber() {
         throw new AssertionError();
-    };
+    }
 
     @Accessor("modeNumber")
-    static void setModeNumber(int modeNumber){
+    static void setModeNumber(int modeNumber) {
         throw new AssertionError();
-    };
+    }
 
     @Accessor("flySpeed")
     int getFlySpeedNumber();

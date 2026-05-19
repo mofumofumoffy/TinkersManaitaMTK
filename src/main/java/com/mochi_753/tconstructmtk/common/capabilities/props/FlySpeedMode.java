@@ -13,7 +13,7 @@ import java.util.Optional;
 
 import static com.mochi_753.tconstructmtk.common.event.TConstructMTKEventHandler.ARMOR_SLOTS;
 
-public enum FlySpeedMode{
+public enum FlySpeedMode {
     NOTHING(-1, 0.05f, "0.05"),
     SLOW(0, 0.05f, "0.05"),
     NORMAL(1, 0.1f, "0.1"),
@@ -32,6 +32,59 @@ public enum FlySpeedMode{
         this.context = context;
     }
 
+    public static FlySpeedMode byIndex(int index) {
+        return switch (index) {
+            case 0 -> SLOW;
+            case 1 -> NORMAL;
+            case 2 -> FAST;
+            case 3 -> EXTREME;
+            default -> NOTHING;
+        };
+    }
+
+    public static FlySpeedMode getNext(FlySpeedMode mode) {
+        return switch (mode.getIndex()) {
+            case 0 -> NORMAL;
+            case 1 -> FAST;
+            case 2 -> EXTREME;
+            case 3 -> SLOW;
+            default -> NOTHING;
+        };
+    }
+
+    public static Optional<FlySpeedMode> getCurrentFlySpeedMode(Player player) {
+        return ARMOR_SLOTS.stream().map(equipmentSlot -> {
+            ItemStack stack = player.getItemBySlot(equipmentSlot);
+            if (stack.getItem() instanceof IModifiable) {
+                var flySpeedLazyOptional = stack.getCapability(ArmorMTKCapability.ARMOR_MODE_CAPABILITY);
+                if (flySpeedLazyOptional.isPresent()) {
+                    return flySpeedLazyOptional.orElseThrow(IllegalStateException::new).getFlySpeedMode();
+                }
+            }
+            return FlySpeedMode.NOTHING;
+        }).max(Comparator.comparingInt(FlySpeedMode::getIndex));
+    }
+
+    public static void adjustFlySpeedMode(Player player) {
+        getCurrentFlySpeedMode(player).ifPresent(currentFlySpeedMode -> {
+            if (currentFlySpeedMode != FlySpeedMode.NOTHING) {
+                FlySpeedMode newMode = getNext(currentFlySpeedMode);
+
+                ARMOR_SLOTS.forEach(equipmentSlot -> {
+                    ItemStack stack = player.getItemBySlot(equipmentSlot);
+                    stack.getCapability(ArmorMTKCapability.ARMOR_MODE_CAPABILITY).ifPresent(iArmorMode -> {
+                        if (iArmorMode.getFlySpeedMode() != FlySpeedMode.NOTHING) {
+                            iArmorMode.setFlySpeedMode(newMode);
+                            TConstructMTK.CHANNEL.sendToServer(new SyncArmorModePacket(equipmentSlot, iArmorMode.getArmorMode(), newMode));
+                        }
+                    });
+                });
+
+                player.displayClientMessage(Component.literal(FIRST_TEXT.getString() + newMode.getContext()), true);
+            }
+        });
+    }
+
     public int getIndex() {
         return index;
     }
@@ -42,58 +95,5 @@ public enum FlySpeedMode{
 
     public String getContext() {
         return context;
-    }
-
-    public static FlySpeedMode byIndex(int index){
-        return switch (index){
-            case 0 -> SLOW;
-            case 1 -> NORMAL;
-            case 2 -> FAST;
-            case 3 -> EXTREME;
-            default -> NOTHING;
-        };
-    }
-
-    public static FlySpeedMode getNext(FlySpeedMode mode){
-        return switch (mode.getIndex()){
-            case 0 -> NORMAL;
-            case 1 -> FAST;
-            case 2 -> EXTREME;
-            case 3 -> SLOW;
-            default -> NOTHING;
-        };
-    }
-
-    public static Optional<FlySpeedMode> getCurrentFlySpeedMode(Player player){
-        return ARMOR_SLOTS.stream().map(equipmentSlot -> {
-            ItemStack stack = player.getItemBySlot(equipmentSlot);
-            if(stack.getItem() instanceof IModifiable){
-                var flySpeedLazyOptional = stack.getCapability(ArmorMTKCapability.ARMOR_MODE_CAPABILITY);
-                if(flySpeedLazyOptional.isPresent()){
-                    return flySpeedLazyOptional.orElseThrow(IllegalStateException::new).getFlySpeedMode();
-                }
-            }
-            return FlySpeedMode.NOTHING;
-        }).max(Comparator.comparingInt(FlySpeedMode::getIndex));
-    }
-
-    public static void adjustFlySpeedMode(Player player){
-        getCurrentFlySpeedMode(player).ifPresent(currentFlySpeedMode -> {
-            if(currentFlySpeedMode != FlySpeedMode.NOTHING){
-                FlySpeedMode newMode = getNext(currentFlySpeedMode);
-
-                ARMOR_SLOTS.forEach(equipmentSlot -> {
-                    ItemStack stack = player.getItemBySlot(equipmentSlot);
-                    stack.getCapability(ArmorMTKCapability.ARMOR_MODE_CAPABILITY).ifPresent(iArmorMode -> {
-                        if(iArmorMode.getFlySpeedMode() != FlySpeedMode.NOTHING){
-                            iArmorMode.setFlySpeedMode(newMode);
-                            TConstructMTK.CHANNEL.sendToServer(new SyncArmorModePacket(equipmentSlot, iArmorMode.getArmorMode(), newMode));
-                        }
-                    });
-                });
-
-                player.displayClientMessage(Component.literal(FIRST_TEXT.getString() + newMode.getContext()), true);
-            }
-        });
     }
 }

@@ -22,21 +22,21 @@ public class SyncArmorModePacket {
         this.flySpeedMode = flySpeedMode;
     }
 
-    public SyncArmorModePacket(FriendlyByteBuf buf){
+    public SyncArmorModePacket(FriendlyByteBuf buf) {
         this.slot = buf.readEnum(EquipmentSlot.class);
         this.armorMode = buf.readEnum(ArmorMode.class);
         this.flySpeedMode = buf.readEnum(FlySpeedMode.class);
     }
 
-    public void encode(FriendlyByteBuf buf){
+    public void encode(FriendlyByteBuf buf) {
         buf.writeEnum(slot);
         buf.writeEnum(armorMode);
         buf.writeEnum(flySpeedMode);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx){
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
         NetworkEvent.Context context = ctx.get();
-        context.enqueueWork(()->{
+        context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player != null) {
                 MTKCapabilityHelper.execute(ArmorMTKCapability.ARMOR_MODE_CAPABILITY, player, slot, iArmorMode -> {

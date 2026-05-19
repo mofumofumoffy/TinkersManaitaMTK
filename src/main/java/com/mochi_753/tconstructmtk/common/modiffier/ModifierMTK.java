@@ -2,7 +2,6 @@ package com.mochi_753.tconstructmtk.common.modiffier;
 
 import com.mochi_753.tconstructmtk.common.capabilities.ArmorMTKCapability;
 import com.mochi_753.tconstructmtk.common.capabilities.ToolMTKCapability;
-import com.mochi_753.tconstructmtk.common.capabilities.props.ArmorMode;
 import com.mochi_753.tconstructmtk.common.capabilities.props.FlySpeedMode;
 import com.mochi_753.tconstructmtk.common.registry.TConstructMTKItems;
 import com.takoy3466.manaitamtk.KeyMapping.MTKKeyMappings;
@@ -18,8 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -46,6 +43,7 @@ import slimeknights.tconstruct.library.module.ModuleHookMap;
 import slimeknights.tconstruct.library.tools.context.ToolAttackContext;
 import slimeknights.tconstruct.library.tools.context.ToolHarvestContext;
 import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Predicate;
@@ -108,11 +106,10 @@ public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierH
     }
 
 
-
     @Override
     public void afterBlockBreak(IToolStackView iToolStackView, ModifierEntry modifierEntry, ToolHarvestContext toolHarvestContext) {
         Player player = toolHarvestContext.getPlayer();
-        if(player != null){
+        if (player != null) {
             MTKCapabilityHelper.execute(MTKCapabilities.RANGE_BREAK, toolHarvestContext.getPlayer(), InteractionHand.MAIN_HAND, iRangeBreak -> {
                 BlockPos pos = toolHarvestContext.getPos();
                 iRangeBreak.rangeBreak(toolHarvestContext.getWorld(), pos.getX(), pos.getY(), pos.getZ(), player, iRangeBreak.getRange());
@@ -125,7 +122,7 @@ public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierH
         Level level = context.getLevel();
         Player player = context.getPlayer();
         int radius = MTKConfig.CROP_GROWTH_RADIUS.get();
-        if (player != null){
+        if (player != null) {
             if (!level.isClientSide() && player.isSteppingCarefully()) {
                 MTKCapabilityHelper.execute(MTKCapabilities.SPREAD_GROW, context, iSpreadGrow -> iSpreadGrow.spreadGrow(context, radius));
                 MTKCapabilityHelper.execute(MTKCapabilities.WOOD_REVERSE, context, iWoodReverse -> iWoodReverse.woodReverse(context));
@@ -137,7 +134,7 @@ public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierH
 
     @Override
     public void addTooltip(IToolStackView iToolStackView, ModifierEntry modifierEntry, @Nullable Player player, List<Component> list, TooltipKey tooltipKey, TooltipFlag tooltipFlag) {
-        if(iToolStackView.hasTag(TinkerTags.Items.MELEE_WEAPON)){
+        if (iToolStackView.hasTag(TinkerTags.Items.MELEE_WEAPON)) {
             list.add(Component.translatable("item.manaitamtk.manaita_sword_hover_text")
                     .withStyle(ChatFormatting.GRAY));
             list.add(Component.literal(this.KEY.getString() + MTKKeyMappings.SwitchExterminationKey.getKey().getDisplayName().getString()));
@@ -148,8 +145,7 @@ public class ModifierMTK extends NoLevelsModifier implements BlockBreakModifierH
         }
 
 
-
-        if(iToolStackView.hasTag(TinkerTags.Items.WORN_ARMOR)){
+        if (iToolStackView.hasTag(TinkerTags.Items.WORN_ARMOR)) {
             list.add(Component.literal(hoverText.getString() + FlySpeedMode.byIndex(iToolStackView.getPersistentData().getInt(ArmorMTKCapability.FLY_SPEED)).getContext()).withStyle(ChatFormatting.GRAY));
         } else {
             int range = iToolStackView.getPersistentData().getInt(ToolMTKCapability.RANGE_BREAK);

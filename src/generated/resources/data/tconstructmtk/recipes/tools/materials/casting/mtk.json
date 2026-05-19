@@ -5,5 +5,5 @@
     "tag": "forge:molten_mtk"
   },
   "output": "tconstructmtk:mtk",
-  "temperature": 1200
+  "temperature": 1000
 }

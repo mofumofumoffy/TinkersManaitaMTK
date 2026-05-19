@@ -23,7 +23,7 @@ public class TConstructMTKFluids {
             .pathType(BlockPathTypes.LAVA)
             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_LAVA)
             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_LAVA)
-            .temperature(1500);
+            .temperature(1300);
     public static final FlowingFluidObject<ForgeFlowingFluid> MOLTEN_MTK = FLUIDS.register("molten_mtk")
             .block(MapColor.COLOR_BLACK, 0)
             .bucket()

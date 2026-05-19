@@ -1,74 +1,69 @@
 package com.mochi_753.tconstructmtk.mixin;
 
-import com.mochi_753.tconstructmtk.common.util.TConstructMTKArmorUtil;
-import net.minecraft.world.damagesource.DamageSource;
+import com.mochi_753.tconstructmtk.common.registry.TConstructMTKModifiers;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import slimeknights.tconstruct.library.tools.item.IModifiable;
+import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 
-@Mixin(value = LivingEntity.class)
-public abstract class LivingEntityMixin {
-    @Inject(method = "die", at = @At("HEAD"), cancellable = true)
-    private void tconstructmtk$die(DamageSource pDamageSource, CallbackInfo ci) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (self instanceof Player player && player.getInventory() == null) return;
+import java.util.ArrayList;
+import java.util.List;
 
-        if (TConstructMTKArmorUtil.isInvincible(self)) ci.cancel();
-    }
+@Mixin(LivingEntity.class)
+public class LivingEntityMixin {
+    @Unique
+    private static final List<EquipmentSlot> ARMOR_SLOTS = new ArrayList<>(List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET));
 
-    @Inject(method = "getHealth", at = @At("HEAD"), cancellable = true)
-    private void tconstructmtk$getHealth(CallbackInfoReturnable<Float> cir) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (self instanceof Player player && player.getInventory() == null) return;
-
-        if (TConstructMTKArmorUtil.isInvincible(self)) {
-            cir.setReturnValue(self.getMaxHealth());
-            cir.cancel();
+    @Inject(at = @At("HEAD"), method = "setHealth", cancellable = true)
+    private void onSetHealth(float v, CallbackInfo ci) {
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if (tinkersManaitaMTK$whetherInvincible(entity)) {
+            ci.cancel();
         }
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void tconstructmtk$hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (self instanceof Player player && player.getInventory() == null) return;
+    @Inject(at = @At("HEAD"), method = "getHealth", cancellable = true)
+    private void onGetHealth(CallbackInfoReturnable<Float> cir) {
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if (tinkersManaitaMTK$whetherInvincible(entity)) {
+            cir.setReturnValue(entity.getMaxHealth());
+        }
+    }
 
-        if (TConstructMTKArmorUtil.isInvincible(self)) {
+    @Inject(method = "isDeadOrDying", at = @At("RETURN"), cancellable = true)
+    private void onIsDeadOrDying(CallbackInfoReturnable<Boolean> cir) {
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if (tinkersManaitaMTK$whetherInvincible(entity)) {
             cir.setReturnValue(false);
-            cir.cancel();
         }
     }
 
-    @Inject(method = "isAlive", at = @At("HEAD"), cancellable = true)
-    private void tconstructmtk$isAlive(CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (self instanceof Player player && player.getInventory() == null) return;
-
-        if (TConstructMTKArmorUtil.isInvincible(self)) {
+    @Inject(method = "isAlive", at = @At("RETURN"), cancellable = true)
+    private void onIsAlive(CallbackInfoReturnable<Boolean> cir) {
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if (tinkersManaitaMTK$whetherInvincible(entity)) {
             cir.setReturnValue(true);
-            cir.cancel();
         }
     }
 
-    @Inject(method = "isDeadOrDying", at = @At("HEAD"), cancellable = true)
-    private void tconstructmtk$isDeadOrDying(CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (self instanceof Player player && player.getInventory() == null) return;
 
-        if (TConstructMTKArmorUtil.isInvincible(self)) {
-            cir.setReturnValue(false);
-            cir.cancel();
+    @Unique
+    private boolean tinkersManaitaMTK$whetherInvincible(LivingEntity entity) {
+        if (entity == null) return false;
+        if (entity instanceof Player player && player.getInventory() != null) {
+            return ARMOR_SLOTS.stream().anyMatch(equipmentSlot -> {
+                ItemStack armorStack = player.getItemBySlot(equipmentSlot);
+                return armorStack.getItem() instanceof IModifiable && ToolStack.from(armorStack).getModifierLevel(TConstructMTKModifiers.MTK_MODIFIER.get()) > 0;
+            });
         }
-    }
-
-    @Inject(method = "setHealth", at = @At("HEAD"), cancellable = true)
-    private void tconstructmtk$setHealth(float pHealth, CallbackInfo ci) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (self instanceof Player player && player.getInventory() == null) return;
-
-        if (TConstructMTKArmorUtil.isInvincible(self)) ci.cancel();
+        return false;
     }
 }

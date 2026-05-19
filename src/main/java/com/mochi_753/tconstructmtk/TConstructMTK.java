@@ -65,8 +65,6 @@ public class TConstructMTK {
                 .consumerMainThread(SyncArmorModePacket::handle)
                 .add();
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onClientTick);
-        });
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(TConstructMTKEventHandler::onClientTick));
     }
 }

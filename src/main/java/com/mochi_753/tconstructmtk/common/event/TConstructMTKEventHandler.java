@@ -202,9 +202,7 @@ public class TConstructMTKEventHandler {
         if (event.getEntity() instanceof Player player) {
             ARMOR_SLOTS.forEach(equipmentSlot -> {
                 if (player.getItemBySlot(equipmentSlot).getItem() instanceof IModifiable) {
-                    MTKCapabilityHelper.execute(MTKCapabilities.INVINCIBLE, player, equipmentSlot, iInvincible -> {
-                        event.setCanceled(true);
-                    });
+                    MTKCapabilityHelper.execute(MTKCapabilities.INVINCIBLE, player, equipmentSlot, iInvincible -> event.setCanceled(true));
                 }
             });
         }

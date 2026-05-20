@@ -22,7 +22,7 @@ public class TConstructMTKMaterialStatsDataProvider extends AbstractMaterialStat
                 StatlessMaterialStats.BINDING);
 
         addMaterialStats(TConstructMTKMaterialIds.MTK,
-                new LimbMaterialStats(Integer.MAX_VALUE, Float.MAX_VALUE, 100.0F, 100.0F),
+                new LimbMaterialStats(Integer.MAX_VALUE, Float.MAX_VALUE, 3.0F, 1.0F),
                 new GripMaterialStats(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE));
 
         addArmorShieldStats(TConstructMTKMaterialIds.MTK,

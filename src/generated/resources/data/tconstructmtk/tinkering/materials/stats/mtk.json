@@ -19,10 +19,10 @@
       "mining_tier": "tconstructmtk:mtk"
     },
     "tconstruct:limb": {
-      "accuracy": 100.0,
+      "accuracy": 1.0,
       "draw_speed": 3.4028235E38,
       "durability": 2147483647,
-      "velocity": 100.0
+      "velocity": 3.0
     },
     "tconstruct:plating_boots": {
       "armor": 3.4028235E38,
